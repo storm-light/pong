@@ -1,0 +1,37 @@
+FRAMEWORK_PATH = /Library/Frameworks
+APP_NAME = PongOnDurgs
+RESOURCE_FILES = Spoopies.ttf pongfunc.h pongfunc.c blue.png white.jpg
+
+all: clean_app package_app
+
+clean_app:
+	rm -rf "./build/$(APP_NAME).app/"
+
+package_app:
+	make -f Makefile
+	mkdir -p "./build/$(APP_NAME).app/Contents/MacOS"
+	mkdir -p "./build/$(APP_NAME).app/Contents/Resources"
+	mkdir -p "./build/$(APP_NAME).app/Contents/Frameworks"
+# copies frameworks into Resources
+	cp -r "$(FRAMEWORK_PATH)/SDL2.framework" "./build/$(APP_NAME).app/Contents/Frameworks"
+	cp -r "$(FRAMEWORK_PATH)/SDL2_image.framework" "./build/$(APP_NAME).app/Contents/Frameworks"
+	cp -r "$(FRAMEWORK_PATH)/SDL2_ttf.framework" "./build/$(APP_NAME).app/Contents/Frameworks"
+# copies dylibs next to PongOnDurgs exec
+	# cp -r "/usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib" "./build/$(APP_NAME).app/Contents/MacOS"
+	# cp -r "/usr/local/opt/sdl2_image/lib/libSDL2_image-2.0.0.dylib" "./build/$(APP_NAME).app/Contents/MacOS"
+	# cp -r "/usr/local/opt/sdl2_ttf/lib/libSDL2_ttf-2.0.0.dylib" "./build/$(APP_NAME).app/Contents/MacOS"
+
+	cp Info.plist "./build/$(APP_NAME).app/Contents/"
+	sed -e "s/APP_NAME/$(APP_NAME)/g" -i "" "./build/$(APP_NAME).app/Contents/Info.plist"
+
+	install_name_tool -add_rpath "@loader_path/../Frameworks" game
+	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @rpath/SDL2.framework/Versions/A/SDL2 game
+	install_name_tool -change /usr/local/opt/sdl2_image/lib/libSDL2_image-2.0.0.dylib @rpath/SDL2_image.framework/Versions/A/SDL2_image game
+	install_name_tool -change /usr/local/opt/sdl2_ttf/lib/libSDL2_ttf-2.0.0.dylib @rpath/SDL2_ttf.framework/Versions/A/SDL2_ttf game
+
+	# install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @loader_path/libSDL2-2.0.0.dylib game	
+	# install_name_tool -change /usr/local/opt/sdl2_image/lib/libSDL2_image-2.0.0.dylib @loader_path/libSDL2_image-2.0.0.dylib game
+	# install_name_tool -change /usr/local/opt/sdl2_ttf/lib/libSDL2_ttf-2.0.0.dylib @loader_path/libSDL2_ttf-2.0.0.dylib game
+	cp ./game "./build/$(APP_NAME).app/Contents/MacOS/$(APP_NAME)"
+	cp ./$(RESOURCE_FILES) "./build/$(APP_NAME).app/Contents/Resources/"
+# clang pongfunc.o pongv4.5.o -o game -framework SDL2 -framework SDL2_image -framework SDL2_ttf

@@ -3,7 +3,9 @@
 
 Included is a Makefile that builds the executable and links dependencies in order to generate a Mac OS X application
 
-The app has already been generated in the build directory.
+The app has already been generated in the build directory and can be run directly after cloning.
+
+In order to re-build, SDL2, SDL_image, and SDL_ttf frameworks need to be installed at /Library/Frameworks, as well as headers, which can be done with brew install.
 
 ## Gameplay
 
